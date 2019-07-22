@@ -14,17 +14,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-        ),
-        body: BusTracker(),
-      ),
+      home: BusTracker(title),
     );
   }
 }
 
 class BusTracker extends StatefulWidget {
+  String title;
+
+  BusTracker(this.title);
+
   @override
   BusTrackerState createState() => BusTrackerState();
 }
@@ -46,32 +45,49 @@ class BusTrackerState extends State<BusTracker> {
   @override
   Widget build(BuildContext context) {
     if (routes == null) {
-      return Center(
-          child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          CircularProgressIndicator(),
-          Padding(padding: EdgeInsets.all(8)),
-          Text("Loading predictions...", style: TextStyle(fontSize: 22))
-        ],
-      ));
+      return Scaffold(
+          appBar: AppBar(title: Text(widget.title)),
+          body: Center(
+              child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              CircularProgressIndicator(),
+              Padding(padding: EdgeInsets.all(8)),
+              Text("Loading predictions...", style: TextStyle(fontSize: 22))
+            ],
+          )));
     }
 
     if (routes.length > 0) {
-      return PageView(
-        children: routes
-            .map((route) => Center(
-                    child: Text(
-                  route.routeName,
-                  style: TextStyle(
-                      fontSize: 22, color: Color(int.parse(route.routeColor))),
-                )))
-            .toList(),
+      return DefaultTabController(
+        length: routes.length,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(widget.title),
+            bottom: TabBar(
+                isScrollable: true,
+                tabs:
+                    routes.map((route) => Tab(text: route.routeName)).toList()),
+          ),
+          body: TabBarView(
+              children: routes
+                  .map((route) => Center(
+                          child: Text(
+                        route.routeName,
+                        style: TextStyle(
+                            fontSize: 22,
+                            color: Color(int.parse(route.routeColor))),
+                      )))
+                  .toList()),
+        ),
       );
     }
 
-    return Center(
-        child: Text("No predictions reported!\nTry again in a few minutes.",
-            textAlign: TextAlign.center, style: TextStyle(fontSize: 22)));
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.title)),
+      body: Center(
+          child: Text("No predictions reported!\nTry again in a few minutes.",
+              textAlign: TextAlign.center, style: TextStyle(fontSize: 22))),
+    );
   }
 }
