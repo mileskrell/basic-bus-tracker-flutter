@@ -30,7 +30,7 @@ class BusTracker extends StatefulWidget {
 }
 
 class BusTrackerState extends State<BusTracker> {
-  var routes = <BusRoute>[];
+  List<BusRoute> routes;
 
   BusTrackerState() {
     loadRoutes();
@@ -45,6 +45,18 @@ class BusTrackerState extends State<BusTracker> {
 
   @override
   Widget build(BuildContext context) {
+    if (routes == null) {
+      return Center(
+          child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          CircularProgressIndicator(),
+          Padding(padding: EdgeInsets.all(8)),
+          Text("Loading predictions...", style: TextStyle(fontSize: 22))
+        ],
+      ));
+    }
+
     if (routes.length > 0) {
       return PageView(
         children: routes
@@ -56,16 +68,10 @@ class BusTrackerState extends State<BusTracker> {
                 )))
             .toList(),
       );
-    } else {
-      return Center(
-          child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          CircularProgressIndicator(),
-          Padding(padding: EdgeInsets.all(8)),
-          Text("Loading routes...", style: TextStyle(fontSize: 22))
-        ],
-      ));
     }
+
+    return Center(
+        child: Text("No predictions reported!\nTry again in a few minutes.",
+            textAlign: TextAlign.center, style: TextStyle(fontSize: 22)));
   }
 }
