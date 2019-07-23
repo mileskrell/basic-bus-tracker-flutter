@@ -5,46 +5,89 @@ import 'package:basic_bus_tracker_flutter/model/bus_models.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  AppState createState() => AppState();
+}
+
+class AppState extends State<MyApp> {
+  final title = "Basic Bus Tracker";
+  Color primaryColor = Colors.blue;
+  final accentColor = Colors.white;
+
+  var colorChangeCallback;
+
+  AppState() {
+    colorChangeCallback = (String newColor) {
+      setState(() {
+        primaryColor = Color(int.parse(newColor));
+      });
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    const title = "Basic Bus Tracker";
     return MaterialApp(
       title: title,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: primaryColor,
+        accentColor: accentColor,
       ),
-      home: BusTracker(title),
+      home: BusTracker(title, colorChangeCallback),
     );
   }
 }
 
 class BusTracker extends StatefulWidget {
-  String title;
+  final String title;
 
-  BusTracker(this.title);
+  final void Function(String) colorChangeCallback;
+
+  BusTracker(this.title, this.colorChangeCallback);
 
   @override
   BusTrackerState createState() => BusTrackerState();
 }
 
-class BusTrackerState extends State<BusTracker> {
-  List<BusRoute> routes;
+class BusTrackerState extends State<BusTracker> with TickerProviderStateMixin {
+  List<BusRoute> _routes;
+  TabController _tabController;
 
   BusTrackerState() {
-    loadRoutes();
+    initialLoadRoutes();
   }
 
-  void loadRoutes() async {
+  Future<Null> initialLoadRoutes() async {
+    await loadRoutes();
+  }
+
+  Future<Null> loadRoutes() async {
     var newRoutes = await fetchRoutes();
     setState(() {
-      routes = newRoutes;
+      // Dispose old TabController
+      // TODO Is this necessary?
+      _tabController?.dispose();
+
+      // Save new routes
+      _routes = newRoutes;
+
+      // Create new TabController
+      _tabController = TabController(length: newRoutes.length, vsync: this)
+        ..addListener(() {
+          // When current tab changes, send the route color to
+          widget.colorChangeCallback(_routes[_tabController.index].routeColor);
+        });
+
+      // Set status bar color to color of currently-selected tab immediately
+      widget.colorChangeCallback(_routes[_tabController.index].routeColor);
     });
+
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (routes == null) {
+    if (_routes == null) {
       return Scaffold(
           appBar: AppBar(title: Text(widget.title)),
           body: Center(
@@ -58,28 +101,51 @@ class BusTrackerState extends State<BusTracker> {
           )));
     }
 
-    if (routes.length > 0) {
-      return DefaultTabController(
-        length: routes.length,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(widget.title),
-            bottom: TabBar(
-                isScrollable: true,
-                tabs:
-                    routes.map((route) => Tab(text: route.routeName)).toList()),
-          ),
-          body: TabBarView(
-              children: routes
-                  .map((route) => Center(
-                          child: Text(
-                        route.routeName,
-                        style: TextStyle(
-                            fontSize: 22,
-                            color: Color(int.parse(route.routeColor))),
-                      )))
+    if (_routes.length > 0) {
+      var tabs = _routes
+          .map((route) => Column(children: [
+                Expanded(
+                    child: ListView.separated(
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: route.stops.length,
+                  separatorBuilder: (BuildContext context, int index) =>
+                      Divider(),
+                  itemBuilder: (BuildContext context, int index) {
+                    return Column(
+                      children: <Widget>[
+                        Text(
+                          route.stops[index].stopName,
+                          style: TextStyle(
+                            fontSize: 18,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        Text("estimates here")
+                      ],
+                    );
+                  },
+                ))
+              ]))
+          .toList();
+
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          bottom: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              tabs: _routes
+                  .map((route) => Tab(
+                        text: route.routeName,
+                      ))
                   .toList()),
         ),
+        body: TabBarView(children: tabs, controller: _tabController),
       );
     }
 
