@@ -13,6 +13,7 @@ class MyApp extends StatefulWidget {
 class AppState extends State<MyApp> {
   final title = "Basic Bus Tracker";
   Color primaryColor = Colors.blue;
+  Color accentColor = Colors.blueAccent;
   final indicatorColor = Colors.white;
 
   var colorChangeCallback;
@@ -21,6 +22,7 @@ class AppState extends State<MyApp> {
     colorChangeCallback = (String newColor) {
       setState(() {
         primaryColor = Color(int.parse(newColor));
+        accentColor = Color(int.parse(newColor));
       });
     };
   }
@@ -31,6 +33,7 @@ class AppState extends State<MyApp> {
       title: title,
       theme: ThemeData(
         primaryColor: primaryColor,
+        accentColor: accentColor,
         indicatorColor: indicatorColor,
       ),
       home: BusTracker(title, colorChangeCallback),
