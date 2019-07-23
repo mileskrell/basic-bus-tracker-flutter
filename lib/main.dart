@@ -103,34 +103,31 @@ class BusTrackerState extends State<BusTracker> with TickerProviderStateMixin {
 
     if (_routes.length > 0) {
       var tabs = _routes
-          .map((route) => Column(children: [
-                Expanded(
-                    child: ListView.separated(
-                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: route.stops.length,
-                  separatorBuilder: (BuildContext context, int index) =>
-                      Divider(),
-                  itemBuilder: (BuildContext context, int index) {
-                    return Column(
-                      children: <Widget>[
-                        Text(
-                          route.stops[index].stopName,
-                          style: TextStyle(
-                            fontSize: 18,
-                          ),
-                          textAlign: TextAlign.center,
+          .map((route) => ListView.separated(
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: route.stops.length,
+                separatorBuilder: (BuildContext context, int index) =>
+                    Divider(),
+                itemBuilder: (BuildContext context, int index) {
+                  return Column(
+                    children: <Widget>[
+                      Text(
+                        route.stops[index].stopName,
+                        style: TextStyle(
+                          fontSize: 18,
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                        ),
-                        Text("estimates here")
-                      ],
-                    );
-                  },
-                ))
-              ]))
+                        textAlign: TextAlign.center,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                      ),
+                      Text("estimates here")
+                    ],
+                  );
+                },
+              ))
           .toList();
 
       return Scaffold(
