@@ -96,7 +96,7 @@ class BusTrackerState extends State<BusTracker> with TickerProviderStateMixin {
             widget
                 .colorChangeCallback(_routes[_tabController.index].routeColor);
           })
-        // Switch tabs to the route the user had been looking at (if still present)
+          // Switch tabs to the route the user had been looking at (if still present)
           ..index = newIndex == -1 ? 0 : newIndex;
 
         // Set status bar color to color of currently-selected tab immediately
@@ -119,46 +119,52 @@ class BusTrackerState extends State<BusTracker> with TickerProviderStateMixin {
           appBar: AppBar(title: Text(widget.title)),
           body: Center(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  CircularProgressIndicator(),
-                  Padding(padding: EdgeInsets.all(8)),
-                  Text("Loading predictions...", style: TextStyle(fontSize: 22))
-                ],
-              )));
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              CircularProgressIndicator(),
+              Padding(padding: EdgeInsets.all(8)),
+              Text("Loading predictions...", style: TextStyle(fontSize: 22))
+            ],
+          )));
     }
 
     // Routes are present; display them
     if (_routes.length > 0) {
       var tabs = _routes
           .map((route) => RefreshIndicator(
-        onRefresh: loadRoutes,
-        child: ListView.separated(
-          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          itemCount: route.stops.length,
-          separatorBuilder: (BuildContext context, int index) =>
-              Divider(),
-          itemBuilder: (BuildContext context, int index) {
-            return Column(
-              children: <Widget>[
-                Text(
-                  route.stops[index].stopName,
-                  style: TextStyle(
-                    fontSize: 18,
-                  ),
-                  textAlign: TextAlign.center,
+                onRefresh: loadRoutes,
+                child: ListView.separated(
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: route.stops.length,
+                  separatorBuilder: (BuildContext context, int index) =>
+                      Divider(),
+                  itemBuilder: (BuildContext context, int index) {
+                    return Column(
+                      children: <Widget>[
+                        Text(
+                          route.stops[index].stopName,
+                          style: TextStyle(
+                            fontSize: 18,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        Text(
+                          route.stops[index].getArrivalEstimateString(),
+                          style: TextStyle(
+                            color: Color(route.stops[index].getTextColor()),
+                          ),
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    );
+                  },
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                ),
-                Text("estimates here")
-              ],
-            );
-          },
-        ),
-      ))
+              ))
           .toList();
 
       return Scaffold(
@@ -169,8 +175,8 @@ class BusTrackerState extends State<BusTracker> with TickerProviderStateMixin {
               isScrollable: true,
               tabs: _routes
                   .map((route) => Tab(
-                text: route.routeName,
-              ))
+                        text: route.routeName,
+                      ))
                   .toList()),
         ),
         body: TabBarView(children: tabs, controller: _tabController),
