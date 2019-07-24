@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:basic_bus_tracker_flutter/repo/repository.dart';
 import 'package:flutter/material.dart';
 
@@ -54,6 +56,12 @@ class BusTracker extends StatefulWidget {
 
 class BusTrackerState extends State<BusTracker> with TickerProviderStateMixin {
   List<BusRoute> _routes;
+
+  String _routeAgeTitle = "";
+
+  // Stored so it can be canceled later
+  Timer _ticker;
+
   TabController _tabController;
 
   var _refreshing = true;
@@ -74,6 +82,27 @@ class BusTrackerState extends State<BusTracker> with TickerProviderStateMixin {
     }
 
     var newRoutes = await fetchRoutes();
+    setState(() {
+      _routeAgeTitle = "0 seconds since estimates fetched";
+    });
+
+    _ticker?.cancel();
+    var updateTime = DateTime.now();
+
+    _ticker = Timer.periodic(Duration(seconds: 1), (timer) {
+      var secondsSinceRoutesFetched =
+          DateTime.now().difference(updateTime).inSeconds;
+      var newRouteAgeTitle;
+      if (secondsSinceRoutesFetched == 1) {
+        newRouteAgeTitle = "1 second since estimates fetched";
+      } else {
+        newRouteAgeTitle =
+        "$secondsSinceRoutesFetched seconds since estimates fetched";
+      }
+      setState(() {
+        _routeAgeTitle = newRouteAgeTitle;
+      });
+    });
 
     // If the route the user had been viewing is also contained in the new data,
     // store its new position; otherwise, store -1.
@@ -169,7 +198,18 @@ class BusTrackerState extends State<BusTracker> with TickerProviderStateMixin {
 
       return Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
+          title: Stack(
+            children: <Widget>[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(widget.title),
+              ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(_routeAgeTitle, style: TextStyle(fontSize: 14)),
+              ),
+            ],
+          ),
           bottom: TabBar(
               controller: _tabController,
               isScrollable: true,
@@ -197,7 +237,24 @@ class BusTrackerState extends State<BusTracker> with TickerProviderStateMixin {
 
     // Otherwise, tell user that there were no predictions
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(
+        title: Stack(
+          children: <Widget>[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(widget.title),
+            ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(_routeAgeTitle, style: TextStyle(fontSize: 14)),
+            ),
+          ],
+        ),
+        bottom: PreferredSize(
+            // Seems like this is actually the best way to add padding below the title!
+            child: Container(),
+            preferredSize: Size.fromHeight(24)),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
