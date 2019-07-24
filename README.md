@@ -1,16 +1,18 @@
-# basic_bus_tracker_flutter
+# Basic Bus Tracker (Flutter edition)
 
-Improved Flutter version of https:&#x2F;&#x2F;github.com&#x2F;mileskrell&#x2F;basic-bus-tracker
+*Another* Rutgers bus tracker, written to get a feel for app development in Flutter.
 
-## Getting Started
+Closely based on my [React Native Rutgers bus tracker](https://github.com/mileskrell/basic-bus-tracker-react-native), but with some nice additions.
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
+- Swipe to refresh
+- For convenience, sorts weekend routes before others (such as the RBHS and New BrunsQuick routes)
+- Displays time since estimates were last fetched
+- Toolbar/status bar color changes based on currently selected route (it looks pretty neat)
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## Screenshots
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+| Summer 1 | RBHS Route | No predictions |
+| - | - | - |
+| ![Summer 1](screenshots/summer_1.png) | ![RBHS](screenshots/rbhs.png) | ![No predictions](screenshots/no_predictions.png) |
